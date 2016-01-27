@@ -4,6 +4,9 @@ Custom Authenticator to use MIT OIDC OAuth with JupyterHub.
 
 import json
 import os
+import grp
+
+from traitlets import Unicode
 
 from tornado.auth import OAuth2Mixin, GoogleOAuth2Mixin
 from tornado import gen
@@ -57,4 +60,27 @@ class MITOAuthenticator(OAuthenticator):
         email = email.split("@")[0]
         if len(email) <= 0: return None
 
+        if not self.check_whitelist(email): return None
+
         return email
+
+class MITGroupOAuthenticator(MITOAuthenticator):
+
+    required_group = Unicode(config=True,
+                             help="""Group that all users must belong to.
+
+                            If not given, any user is allowed.
+                            """)
+
+    def check_whitelist(self, username):
+        if not self.required_group:
+            self.log.warning("Group authenticator selected, but no group given - allowing all users.")
+            return True
+
+        try:
+            group = grp.getgrnam(self.required_group)
+            return username in group.gr_mem
+        except KeyError:
+            self.log.warning("The required_group does not exist.  Rejecting all users.")
+
+        return False
