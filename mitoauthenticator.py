@@ -31,9 +31,7 @@ class MITOAuthHandler(OAuthCallbackHandler, MITMixin, GoogleOAuth2Mixin):
 class MITOAuthenticator(OAuthenticator):
     
     login_service = "MIT OIDC"
-    
-    client_id_env = 'OAUTH_CLIENT_ID'
-    client_secret_env = 'OAUTH_CLIENT_SECRET'
+
     login_handler = MITLoginHandler
     callback_handler = MITOAuthHandler
 
