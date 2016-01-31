@@ -5,6 +5,7 @@ Custom Authenticator to use MIT OIDC OAuth with JupyterHub.
 import json
 import os
 import grp
+import subprocess
 
 from traitlets import Unicode
 
@@ -79,7 +80,20 @@ class MITGroupOAuthenticator(MITOAuthenticator):
 
         try:
             group = grp.getgrnam(self.required_group)
-            return username in group.gr_mem
+            # Check for entry in /etc/group.
+            if username in group.gr_mem:
+                self.log.info("Allowing user %s via /etc/group membership checking." % username)
+                return True
+
+            # Check for AFS membership (for MIT usernames).
+            (stdout, stderr) = subprocess.Popen(["pts", "mem", self.required_group],
+                                                stdout=subprocess.PIPE).communicate()
+            # Allow any matching username, ignoring domain
+            # (e.g. @athena.mit.edu).
+            if username in [s.strip().split("@")[0] for s in stdout.decode().strip().split("\n")]:
+                self.log.info("Allowing user %s via AFS group membership checking." % username)
+                return True
+
         except KeyError:
             self.log.warning("The required_group does not exist.  Rejecting all users.")
 

@@ -57,9 +57,34 @@ access to a single group (via `/etc/group` membership).  Add the
 following lines to your configuration:
 
     c.JupyterHub.authenticator_class = 'oauthenticator.MITGroupOAuthenticator'
-    c.MITGroupOAuthenticator.required_group = [your required group]
+    c.MITGroupOAuthenticator.required_group = 'YOUR_GROUP'
 
 If you omit the `required_group` in your configuration, the class will
 behave like `MITOAuthenticator` and allow all users.  If you give it
 an invalid group, or try to log in as a user not in that group, the
 user will be rejected with a HTTP 403 error.
+
+## Handling non-matching usernames
+
+Our systems use CSAIL account names, but this authenticator relies on
+MIT (Athena) account names.  You can work around these differences by
+taking these steps:
+
+1.  Add the MIT username with the CSAIL uid to `/etc/passwd` on the
+Jupyterhub serve:
+
+    useradd --home /cluster/$CSAIL_USERNAME --gid $CSAIL_GID -M --no-user-group --non-unique --system --uid $MIT_USERNAME
+
+2.  Add the MIT username to the designated CSAIL group using AFS
+cross-realm authentication.  First set up cross-realm access for the
+user by following the instructions
+[here](http://tig.csail.mit.edu/wiki/TIG/CrossCellHowto#Setting_up),
+then add the Athena user to the CSAIL authorization group:
+
+    pts adduser $MIT_USERNAME@athena.mit.edu $CSAIL_GROUP
+
+3.  Make a symlink so that the home directory for the MIT username
+redirects to the CSAIL user's home directory.  On our systems, that
+would be something like:
+
+    ln -s /cluster/$CSAIL_USERNAME /cluster/$MIT_USERNAME
