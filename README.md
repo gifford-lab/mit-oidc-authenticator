@@ -71,9 +71,9 @@ MIT (Athena) account names.  You can work around these differences by
 taking these steps:
 
 1.  Add the MIT username with the CSAIL uid to `/etc/passwd` on the
-Jupyterhub serve:
+Jupyterhub server:
 
-    useradd --home /cluster/$CSAIL_USERNAME --gid $CSAIL_GID -M --no-user-group --non-unique --system --uid $MIT_USERNAME
+        useradd --home /cluster/$CSAIL_USERNAME --gid $CSAIL_GID -M --no-user-group --non-unique --system --uid $MIT_USERNAME
 
 2.  Add the MIT username to the designated CSAIL group using AFS
 cross-realm authentication.  First set up cross-realm access for the
@@ -81,10 +81,10 @@ user by following the instructions
 [here](http://tig.csail.mit.edu/wiki/TIG/CrossCellHowto#Setting_up),
 then add the Athena user to the CSAIL authorization group:
 
-    pts adduser $MIT_USERNAME@athena.mit.edu $CSAIL_GROUP
+        pts adduser $MIT_USERNAME@athena.mit.edu $CSAIL_GROUP
 
 3.  Make a symlink so that the home directory for the MIT username
 redirects to the CSAIL user's home directory.  On our systems, that
 would be something like:
 
-    ln -s /cluster/$CSAIL_USERNAME /cluster/$MIT_USERNAME
+        ln -s /cluster/$CSAIL_USERNAME /cluster/$MIT_USERNAME
