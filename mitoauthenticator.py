@@ -5,12 +5,13 @@ Custom Authenticator to use MIT OIDC OAuth with JupyterHub.
 import json
 import os
 import grp
-import subprocess
 
 from traitlets import Unicode
 
 from tornado.auth import OAuth2Mixin, GoogleOAuth2Mixin
 from tornado import gen
+
+from jupyterhub.handlers.login import LoginHandler
 
 from oauthenticator.oauth2 import OAuthLoginHandler, OAuthenticator, OAuthCallbackHandler
 
@@ -41,7 +42,7 @@ class MITOAuthenticator(OAuthenticator):
 
     def get_handlers(self, app):
         return [
-            (r'/login', self.login_handler),
+            (r'/login', LoginHandler),
             (r'/oauth_login', self.login_handler),
             (r'/oauth2_callback', self.callback_handler),
         ]
