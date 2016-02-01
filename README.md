@@ -73,7 +73,7 @@ taking these steps:
 1.  Add the MIT username with the CSAIL uid to `/etc/passwd` on the
 Jupyterhub server:
 
-        useradd --home /cluster/$CSAIL_USERNAME --gid $CSAIL_GID -M --no-user-group --non-unique --system --uid $MIT_USERNAME
+        useradd --home /cluster/$CSAIL_USERNAME --gid $CSAIL_GID -M --no-user-group --non-unique --system --uid $CSAIL_UID $MIT_USERNAME
 
 2.  Add the MIT username to the designated CSAIL group using AFS
 cross-realm authentication.  First set up cross-realm access for the
