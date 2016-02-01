@@ -66,25 +66,13 @@ user will be rejected with a HTTP 403 error.
 
 ## Handling non-matching usernames
 
-Our systems use CSAIL account names, but this authenticator relies on
-MIT (Athena) account names.  You can work around these differences by
-taking these steps:
+The authenticator uses `Authenticator.normalize_username`, which
+allows a configurable dict to remap usernames (`username_map`).  This
+can be used to map MIT names to CSAIL names, in cases where they
+differ.  Names that do not appear in the map are passed through
+unaltered.  Note that the outer proxy server needs to be restarted
+when this dict is changed, but client Jupyter instances will be
+preserved as long as the sqlite database and per-user Docker images
+are left up (the `c.JupyterHub.cleanup_servers` option).
 
-1.  Add the MIT username with the CSAIL uid to `/etc/passwd` on the
-Jupyterhub server:
-
-        useradd --home /cluster/$CSAIL_USERNAME --gid $CSAIL_GID -M --no-user-group --non-unique --system --uid $CSAIL_UID $MIT_USERNAME
-
-2.  Add the MIT username to the designated CSAIL group using AFS
-cross-realm authentication.  First set up cross-realm access for the
-user by following the instructions
-[here](http://tig.csail.mit.edu/wiki/TIG/CrossCellHowto#Setting_up),
-then add the Athena user to the CSAIL authorization group:
-
-        pts adduser $MIT_USERNAME@athena.mit.edu $CSAIL_GROUP
-
-3.  Make a symlink so that the home directory for the MIT username
-redirects to the CSAIL user's home directory.  On our systems, that
-would be something like:
-
-        ln -s /cluster/$CSAIL_USERNAME /cluster/$MIT_USERNAME
+    c.Authenticator.username_map = {"MIT_USERNAME" : "CSAIL_USERNAME"}
