@@ -48,7 +48,7 @@ class MITOAuthenticator(OAuthenticator):
         ]
     
     @gen.coroutine
-    def authenticate(self, handler):
+    def authenticate(self, handler, data=None):
         access = yield handler.get_authenticated_user(
             redirect_uri=self.oauth_callback_url,
             code=handler.get_argument("code", False))
